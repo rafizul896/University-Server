@@ -25,7 +25,7 @@ export type IStudent = {
   id: string;
   name: UserName;
   profileImg?: string;
-  gender: 'male' | 'female';
+  gender: 'male' | 'female' |'others';
   dateOfBirth?: string;
   email: string;
   contactNo: string;
