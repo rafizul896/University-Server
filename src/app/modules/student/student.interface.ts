@@ -25,7 +25,7 @@ export type IStudent = {
   rollNumber: string;
   name: UserName;
   profileImg?: string;
-  gender: 'male' | 'female' |'others';
+  gender: 'male' | 'female' | 'others';
   dateOfBirth?: string;
   email: string;
   contactNo: string;
