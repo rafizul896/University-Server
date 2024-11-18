@@ -7,9 +7,9 @@ import {
 } from './student.interface';
 
 const userNameSchema = new Schema<UserName>({
-  firstName: { type: String, required: true },
+  firstName: { type: String, required: [true, 'First Name is required'] },
   middleName: { type: String },
-  lastName: { type: String, required: true },
+  lastName: { type: String, required: [true, 'Last Name is required'] },
 });
 
 const guardianSchema = new Schema<Guardian>({
@@ -29,18 +29,21 @@ const localGuardianSchema = new Schema<LocalGuardian>({
 });
 
 const studentSchema = new Schema<IStudent>({
-  id: { type: String },
+  rollNumber: { type: String, required: true, unique: true },
   name: {
     type: userNameSchema,
-    required: true,
+    required: [true, 'Name is required'],
   },
   gender: {
     type: String,
-    enum: ['male', 'female', 'others'],
-    required: true,
+    enum: {
+      values: ['male', 'female', 'others'],
+      message: '{VALUE} is not valid',
+    },
+    required: [true, 'Gender field is required'],
   },
   dateOfBirth: { type: String },
-  email: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
   contactNo: { type: String, required: true },
   emergencyContactNo: { type: String, required: true },
   blodGroup: {

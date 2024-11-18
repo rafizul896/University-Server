@@ -22,7 +22,7 @@ export type UserName = {
 };
 
 export type IStudent = {
-  id: string;
+  rollNumber: string;
   name: UserName;
   profileImg?: string;
   gender: 'male' | 'female' |'others';
