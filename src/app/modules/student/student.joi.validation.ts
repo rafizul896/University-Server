@@ -74,7 +74,7 @@ const localGuardianSchema = Joi.object({
 });
 
 // Main Student Schema
-const studentValidationSchema = Joi.object({
+const studentValidationSchemaJoi = Joi.object({
   rollNumber: Joi.string()
     .pattern(/^\d{4,10}$/)
     .required()
@@ -143,4 +143,4 @@ const studentValidationSchema = Joi.object({
   }),
 });
 
-export default studentValidationSchema;
+export default studentValidationSchemaJoi;
