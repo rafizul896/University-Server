@@ -5,7 +5,7 @@ import studentValidationSchemaZod from './student.zod.validation';
 const createStudent = async (req: Request, res: Response) => {
   try {
     // data validetion using zod
-    
+
     const student = req.body.student;
     const zodParseData = studentValidationSchemaZod.parse(student);
 
