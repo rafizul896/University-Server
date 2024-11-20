@@ -4,6 +4,7 @@ import {
   LocalGuardian,
   IStudent,
   UserName,
+  StudentModel,
 } from './student.interface';
 
 const userNameSchema = new Schema<UserName>({
@@ -28,12 +29,12 @@ const localGuardianSchema = new Schema<LocalGuardian>({
   address: { type: String, required: true },
 });
 
-const studentSchema = new Schema<IStudent>({
-  rollNumber: { type: String },
+const studentSchema = new Schema<IStudent, StudentModel>({
+  rollNumber: { type: String, unique: true },
   name: userNameSchema,
   gender: ['male', 'female'],
   dateOfBirth: { type: String },
-  email: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
   contactNo: { type: String, required: true },
   emergencyContactNo: { type: String, required: true },
   blodGroup: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
@@ -45,4 +46,16 @@ const studentSchema = new Schema<IStudent>({
   localGuardian: localGuardianSchema,
 });
 
-export const Student = model<IStudent>('Student', studentSchema);
+// creating a custom static method
+studentSchema.statics.isUserExists = async function (rollNumber: string) {
+  const existingUser = await Student.findOne({ rollNumber });
+  return existingUser;
+};
+
+// // creating a custom instance method
+// studentSchema.methods.isUserExists = async function (id: string) {
+//   const existingUser = await Student.findOne({ rollNumber: id });
+//   return existingUser;
+// };
+
+export const Student = model<IStudent, StudentModel>('Student', studentSchema);
