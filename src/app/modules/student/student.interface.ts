@@ -25,6 +25,7 @@ export type UserName = {
 
 export type IStudent = {
   rollNumber: string;
+  password: string,
   name: UserName;
   profileImg?: string;
   gender: 'male' | 'female' | 'others';
@@ -38,6 +39,7 @@ export type IStudent = {
   guardian: Guardian;
   localGuardian: LocalGuardian;
   isActive: 'active' | 'blocked';
+  isDeleted: boolean
 };
 
 // for crating static

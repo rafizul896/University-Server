@@ -57,6 +57,7 @@ const studentValidationSchemaZod = z.object({
   rollNumber: z.string().regex(/^\d{4,10}$/, {
     message: 'Roll Number must be between 4 and 10 digits',
   }),
+  password: z.string().max(20),
   name: userNameValidationSchema,
   gender: z.enum(['male', 'female', 'others'], {
     errorMap: () => ({
@@ -98,6 +99,7 @@ const studentValidationSchemaZod = z.object({
     .default('active'),
   guardian: guardianValidationSchema,
   localGuardian: localGuardianValidationSchema,
+  isDeleted: z.boolean()
 });
 
 // Exporting the validation schema
