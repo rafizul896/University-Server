@@ -31,23 +31,35 @@ const localGuardianSchema = new Schema<LocalGuardian>({
   address: { type: String, required: true },
 });
 
-const studentSchema = new Schema<IStudent, StudentModel>({
-  rollNumber: { type: String, unique: true },
-  password: { type: String, require: [true, 'Please provied your password'] },
-  name: userNameSchema,
-  gender: ['male', 'female'],
-  dateOfBirth: { type: String },
-  email: { type: String, required: true, unique: true },
-  contactNo: { type: String, required: true },
-  emergencyContactNo: { type: String, required: true },
-  blodGroup: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
-  presentAddress: { type: String, required: true },
-  permanentAddress: { type: String, required: true },
-  profileImg: { type: String },
-  isActive: ['active', 'blocked'],
-  guardian: guardianSchema,
-  localGuardian: localGuardianSchema,
-  isDeleted: { type: Boolean, default: false },
+const studentSchema = new Schema<IStudent, StudentModel>(
+  {
+    rollNumber: { type: String, unique: true },
+    password: { type: String, require: [true, 'Please provied your password'] },
+    name: userNameSchema,
+    gender: ['male', 'female'],
+    dateOfBirth: { type: String },
+    email: { type: String, required: true, unique: true },
+    contactNo: { type: String, required: true },
+    emergencyContactNo: { type: String, required: true },
+    blodGroup: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+    presentAddress: { type: String, required: true },
+    permanentAddress: { type: String, required: true },
+    profileImg: { type: String },
+    isActive: ['active', 'blocked'],
+    guardian: guardianSchema,
+    localGuardian: localGuardianSchema,
+    isDeleted: { type: Boolean, default: false },
+  },
+  {
+    toJSON: {
+      virtuals: true,
+    },
+  },
+);
+
+// virtual
+studentSchema.virtual('fullName').get(function () {
+  return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`
 });
 
 // pre save middleware/hook : will work on create() or save()
