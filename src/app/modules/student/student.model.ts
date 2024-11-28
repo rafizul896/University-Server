@@ -33,7 +33,13 @@ const localGuardianSchema = new Schema<LocalGuardian>({
 
 const studentSchema = new Schema<IStudent, StudentModel>(
   {
-    rollNumber: { type: String, unique: true },
+    id: { type: String, unique: true },
+    user: {
+      type: Schema.Types.ObjectId,
+      required: [true, 'User id is required'],
+      unique: true,
+      ref: 'User',
+    },
     password: { type: String, require: [true, 'Please provied your password'] },
     name: userNameSchema,
     gender: ['male', 'female'],
@@ -45,7 +51,6 @@ const studentSchema = new Schema<IStudent, StudentModel>(
     presentAddress: { type: String, required: true },
     permanentAddress: { type: String, required: true },
     profileImg: { type: String },
-    isActive: ['active', 'blocked'],
     guardian: guardianSchema,
     localGuardian: localGuardianSchema,
     isDeleted: { type: Boolean, default: false },
@@ -59,7 +64,7 @@ const studentSchema = new Schema<IStudent, StudentModel>(
 
 // virtual
 studentSchema.virtual('fullName').get(function () {
-  return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`
+  return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
 });
 
 // pre save middleware/hook : will work on create() or save()
@@ -103,11 +108,5 @@ studentSchema.statics.isUserExists = async function (rollNumber: string) {
   const existingUser = await Student.findOne({ rollNumber });
   return existingUser;
 };
-
-// // creating a custom instance method
-// studentSchema.methods.isUserExists = async function (id: string) {
-//   const existingUser = await Student.findOne({ rollNumber: id });
-//   return existingUser;
-// };
 
 export const Student = model<IStudent, StudentModel>('Student', studentSchema);
