@@ -1,7 +1,11 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { UserServices } from './user.service';
 
-const createStudent = async (req: Request, res: Response) => {
+const createStudent = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     // data validetion using zod
     const { student: studentData, password } = req.body;
@@ -17,15 +21,8 @@ const createStudent = async (req: Request, res: Response) => {
       message: 'Student is created succesfully',
       data: result,
     });
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      console.log(err);
-      res.status(200).json({
-        success: false,
-        message: err?.message || 'Something is wrong',
-        error: err,
-      });
-    }
+  } catch (err) {
+    next(err);
   }
 };
 
