@@ -44,5 +44,6 @@ export type IStudent = {
 
 // for crating static
 export interface StudentModel extends Model<IStudent> {
+  // eslint-disable-next-line no-unused-vars
   isUserExists(id: string): Promise<IStudent | null>;
 };
