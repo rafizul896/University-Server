@@ -1,15 +1,9 @@
-import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { StudentServices } from './student.service';
 import sendResponse from '../../utils/sendResponse';
 import httpStatus from 'http-status';
+import catchAsync from '../../utils/catchAsynce';
 
-const catchAsync = (fn: RequestHandler) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next)).catch((err) => next(err));
-  };
-};
-
-const getAllStudents = catchAsync(async (req, res, next) => {
+const getAllStudents = catchAsync(async (req, res) => {
   const result = await StudentServices.getAllStudentsFromDB();
 
   sendResponse(res, {
@@ -20,7 +14,7 @@ const getAllStudents = catchAsync(async (req, res, next) => {
   });
 });
 
-const getAStudent = catchAsync(async (req, res, next) => {
+const getAStudent = catchAsync(async (req, res) => {
   const id = req.params.id;
   const result = await StudentServices.getAStudentFromDB(id);
 
@@ -32,7 +26,7 @@ const getAStudent = catchAsync(async (req, res, next) => {
   });
 });
 
-const deleteAStudent = catchAsync(async (req, res, next) => {
+const deleteAStudent = catchAsync(async (req, res) => {
   const id = req.params.id;
   const result = await StudentServices.deleteAStudentFromDB(id);
 
