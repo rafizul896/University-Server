@@ -6,12 +6,12 @@ const getAllStudentsFromDB = async () => {
 };
 
 const getAStudentFromDB = async (id: string) => {
-  const result = await Student.aggregate([{ $match: { rollNumber: id } }]);
+  const result = await Student.aggregate([{ $match: { id } }]);
   return result;
 };
 
-const deleteAStudentFromDB = async (rollNumber: string) => {
-  const result = await Student.updateOne({ rollNumber }, { isDeleted: true });
+const deleteAStudentFromDB = async (id: string) => {
+  const result = await Student.updateOne({ id }, { isDeleted: true });
   return result;
 };
 
