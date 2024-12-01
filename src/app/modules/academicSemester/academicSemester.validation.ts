@@ -1,28 +1,18 @@
 import { z } from 'zod';
-
-const months = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-] as const;
+import {
+  AcademicSemesterCode,
+  AcademicSemesterMonths,
+  AcademicSemesterName,
+} from './academicSemester.constant';
 
 const createAcademicSemesterValidationSchema = z.object({
   body: z.object({
-    name: z.enum(['Autumn', 'Summar', 'Fall'], {
+    name: z.enum([...AcademicSemesterName] as [string, ...string[]], {
       required_error: 'Semester name is required',
       invalid_type_error:
         "Semester name must be one of 'Autumn', 'Summar', or 'Fall'",
     }),
-    code: z.enum(['01', '02', '03'], {
+    code: z.enum([...AcademicSemesterCode] as [string, ...string[]], {
       required_error: 'Semester code is required',
       invalid_type_error: "Semester code must be one of '01', '02', or '03'",
     }),
@@ -34,11 +24,11 @@ const createAcademicSemesterValidationSchema = z.object({
       .refine((val) => !isNaN(Date.parse(val)), {
         message: 'Invalid year format. Must be a valid date string.',
       }),
-    startMonth: z.enum(months, {
+    startMonth: z.enum([...AcademicSemesterMonths] as [string, ...string[]], {
       required_error: 'Start month is required',
       invalid_type_error: 'Start month must be one of the valid months',
     }),
-    endMonth: z.enum(months, {
+    endMonth: z.enum([...AcademicSemesterMonths] as [string, ...string[]], {
       required_error: 'End month is required',
       invalid_type_error: 'End month must be one of the valid months',
     }),
