@@ -50,6 +50,10 @@ const studentSchema = new Schema<IStudent, StudentModel>(
     profileImg: { type: String },
     guardian: guardianSchema,
     localGuardian: localGuardianSchema,
+    admissionSemester:{
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicSemester'
+    },
     isDeleted: { type: Boolean, default: false },
   },
   {

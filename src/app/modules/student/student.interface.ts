@@ -39,6 +39,7 @@ export type IStudent = {
   permanentAddress: string;
   guardian: Guardian;
   localGuardian: LocalGuardian;
+  admissionSemester: Types.ObjectId;
   isDeleted: boolean;
 };
 

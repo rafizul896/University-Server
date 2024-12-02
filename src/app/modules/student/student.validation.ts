@@ -118,6 +118,7 @@ const createStudentValidationSchema = z.object({
         .optional(),
       guardian: guardianValidationSchema,
       localGuardian: localGuardianValidationSchema,
+      admissionSemester: z.string(),
       isDeleted: z.boolean().optional(),
     }),
   }),
