@@ -6,7 +6,7 @@ import validateRequest from '../../middlewares/validateRequest';
 const router = Router();
 
 router.post(
-  '/create-user',
+  '/create-student',
   validateRequest(studentValidations.createStudentValidationSchema),
   UserControllers.createStudent,
 );
