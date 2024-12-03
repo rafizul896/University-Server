@@ -21,8 +21,12 @@ const createStudentIntoDB = async (password: string, payload: IStudent) => {
    const admissionSemester = await AcademicSemester.findById(payload.admissionSemester);
 
   //   set manually generated id
-  userData.id = generateStudentId(admissionSemester as TAcademicSemester);
+  userData.id = await generateStudentId(admissionSemester as TAcademicSemester);
 
+  const isUserExists = await Student.findOne({email: payload.email})
+  if(isUserExists){
+    throw new Error('This email Already Used on this Academy')
+  }
   //   create a user
   const newUser = await User.create(userData);
 
