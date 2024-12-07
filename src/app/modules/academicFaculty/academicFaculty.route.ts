@@ -13,6 +13,13 @@ router.post(
 
 router.get('/', AcademicFacultyControllars.getAllAcademicFaculties);
 router.get('/:facultyId', AcademicFacultyControllars.getSingleAcademicFaculty);
-router.patch('/:facultyId', AcademicFacultyControllars.updateAcademicFacuty);
 
-export const AcademicFacultyRouter = router;
+router.patch(
+  '/:facultyId',
+  validateRequest(
+    AcademicFacultyValidations.updateAcademicFacultyValidationSchema,
+  ),
+  AcademicFacultyControllars.updateAcademicFacuty,
+);
+
+export const AcademicFacultyRoutes = router;
