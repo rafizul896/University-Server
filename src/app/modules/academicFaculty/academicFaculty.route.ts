@@ -12,7 +12,7 @@ router.post(
 );
 
 router.get('/', AcademicFacultyControllars.getAllAcademicFaculties);
-router.get('/:semesterId', AcademicFacultyControllars.getSingleAcademicFaculty);
-router.patch('/:semesterId', AcademicFacultyControllars.updateAcademicFacuty);
+router.get('/:facultyId', AcademicFacultyControllars.getSingleAcademicFaculty);
+router.patch('/:facultyId', AcademicFacultyControllars.updateAcademicFacuty);
 
 export const AcademicFacultyRouter = router;
