@@ -10,13 +10,57 @@ const createAcademicDepartment = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Acaemic Department created succesfully',
+    message: 'Acaemic Department is created succesfully',
     data: result,
   });
 });
 
+const getAllAcademicDepartments = catchAsync(async (req, res) => {
+  const result =
+    await AcademicDepartmentServices.getAllAcademicDepartmentsFromDB();
 
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Acaemic Departments are retrived succesfully',
+    data: result,
+  });
+});
+
+const getSingleAcademicDepartment = catchAsync(async (req, res) => {
+  const { departmentId } = req.body;
+  const result =
+    await AcademicDepartmentServices.getSingleAcademicDepartmentFromDB(
+      departmentId,
+    );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Acaemic Department is retrived succesfully',
+    data: result,
+  });
+});
+
+const updateAcademicDepartment = catchAsync(async (req, res) => {
+  const { departmentId } = req.body;
+  const result =
+    await AcademicDepartmentServices.updateAcademicDepartmentIntoDB(
+      departmentId,
+      req.body,
+    );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Acaemic Department is updated succesfully',
+    data: result,
+  });
+});
 
 export const AcademicDepartmentControllers = {
   createAcademicDepartment,
+  getAllAcademicDepartments,
+  getSingleAcademicDepartment,
+  updateAcademicDepartment,
 };
