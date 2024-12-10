@@ -40,6 +40,7 @@ export type IStudent = {
   guardian: Guardian;
   localGuardian: LocalGuardian;
   admissionSemester: Types.ObjectId;
+  academicDepartment: Types.ObjectId;
   isDeleted: boolean;
 };
 
@@ -47,4 +48,4 @@ export type IStudent = {
 export interface StudentModel extends Model<IStudent> {
   // eslint-disable-next-line no-unused-vars
   isUserExists(id: string): Promise<IStudent | null>;
-};
+}
