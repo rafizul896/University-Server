@@ -8,13 +8,13 @@ const globalErrorHandler = (
 ): void => {
   if (err instanceof Error) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const statusCode = (err as any).status || 500;
+    const statusCode = (err as any).statusCode || 500;
     const message = err.message || 'Something went wrong!';
 
     res.status(statusCode).json({
       success: false,
-      error: err,
       message,
+      error: err,
     });
     next(err);
   }

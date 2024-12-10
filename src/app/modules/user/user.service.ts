@@ -1,4 +1,5 @@
 import config from '../../config';
+import AppError from '../../errors/AppError';
 import { TAcademicSemester } from '../academicSemester/academicSemester.interface';
 import { AcademicSemester } from '../academicSemester/academicSemester.model';
 import { IStudent } from '../student/student.interface';
@@ -6,6 +7,7 @@ import { Student } from '../student/student.model';
 import { TUser } from './user.interface';
 import { User } from './user.model';
 import { generateStudentId } from './user.utils';
+import httpStatus from 'http-status';
 
 const createStudentIntoDB = async (password: string, payload: IStudent) => {
   // create a use object
@@ -17,15 +19,20 @@ const createStudentIntoDB = async (password: string, payload: IStudent) => {
   //   set student role
   userData.role = 'student';
 
-   // find acamdemic semester info
-   const admissionSemester = await AcademicSemester.findById(payload.admissionSemester);
+  // find acamdemic semester info
+  const admissionSemester = await AcademicSemester.findById(
+    payload.admissionSemester,
+  );
 
   //   set manually generated id
   userData.id = await generateStudentId(admissionSemester as TAcademicSemester);
 
-  const isUserExists = await Student.findOne({email: payload.email})
-  if(isUserExists){
-    throw new Error('This email Already Used on this Academy')
+  const isUserExists = await Student.findOne({ email: payload.email });
+  if (isUserExists) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'This email Already Used on this Academy',
+    );
   }
   //   create a user
   const newUser = await User.create(userData);
