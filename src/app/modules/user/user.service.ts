@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import config from '../../config';
 import AppError from '../../errors/AppError';
 import { TAcademicSemester } from '../academicSemester/academicSemester.interface';
@@ -24,26 +25,47 @@ const createStudentIntoDB = async (password: string, payload: IStudent) => {
     payload.admissionSemester,
   );
 
-  //   set manually generated id
-  userData.id = await generateStudentId(admissionSemester as TAcademicSemester);
+  const session = await mongoose.startSession();
 
-  const isUserExists = await Student.findOne({ email: payload.email });
-  if (isUserExists) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      'This email Already Used on this Academy',
+  try {
+    session.startTransaction();
+    //   set manually generated id
+    userData.id = await generateStudentId(
+      admissionSemester as TAcademicSemester,
     );
-  }
-  //   create a user
-  const newUser = await User.create(userData);
 
-  //   create a student
-  if (Object.keys(newUser).length) {
-    // set id ,_id as user
-    payload.id = newUser.id;
-    payload.user = newUser._id; // ref _id
-    const newStudent = await Student.create(payload);
-    return newStudent;
+    const isUserExists = await Student.findOne({ email: payload.email });
+    if (isUserExists) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'This email Already Used on this Academy',
+      );
+    }
+    //   create a user (transaction-1)
+    const newUser = await User.create([userData], { session });
+
+    //   create a student
+    if (!newUser.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create User');
+    } else {
+      // set id ,_id as user
+      payload.id = newUser[0].id;
+      payload.user = newUser[0]._id; // ref _id
+
+      //   create a student (transaction-2)
+      const newStudent = await Student.create([payload], { session });
+
+      if (!newStudent.length) {
+        throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create Student');
+      }
+
+      await session.commitTransaction();
+      await session.endSession();
+      return newStudent;
+    }
+  } catch (err) {
+    await session.abortTransaction();
+    await session.endSession();
   }
 };
 
