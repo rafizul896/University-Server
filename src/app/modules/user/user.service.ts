@@ -34,13 +34,6 @@ const createStudentIntoDB = async (password: string, payload: IStudent) => {
       admissionSemester as TAcademicSemester,
     );
 
-    const isUserExists = await Student.findOne({ email: payload.email });
-    if (isUserExists) {
-      throw new AppError(
-        httpStatus.BAD_REQUEST,
-        'This email Already Used on this Academy',
-      );
-    }
     //   create a user (transaction-1)
     const newUser = await User.create([userData], { session });
 
@@ -63,6 +56,8 @@ const createStudentIntoDB = async (password: string, payload: IStudent) => {
       await session.endSession();
       return newStudent;
     }
+
+    // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   } catch (err) {
     await session.abortTransaction();
     await session.endSession();
