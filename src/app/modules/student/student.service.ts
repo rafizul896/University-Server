@@ -3,6 +3,7 @@ import { Student } from './student.model';
 import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
 import { User } from '../user/user.model';
+import { IStudent } from './student.interface';
 
 const getAllStudentsFromDB = async () => {
   const result = await Student.find()
@@ -27,6 +28,12 @@ const getAStudentFromDB = async (id: string) => {
       },
     });
   return result;
+};
+
+const updateSudentIntoDB = (studentId: string, payload: Partial<IStudent>) => {
+  console.log(studentId, payload);
+
+  
 };
 
 const deleteAStudentFromDB = async (id: string) => {
@@ -74,4 +81,5 @@ export const StudentServices = {
   getAllStudentsFromDB,
   getAStudentFromDB,
   deleteAStudentFromDB,
+  updateSudentIntoDB,
 };

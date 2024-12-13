@@ -124,7 +124,65 @@ const createStudentValidationSchema = z.object({
   }),
 });
 
+// Update Student Validation Schema
+const updateStudentValidationSchema = z.object({
+  body: z.object({
+    student: z
+      .object({
+        name: userNameValidationSchema.partial(), // All name fields optional
+        gender: z
+          .enum(['male', 'female'], {
+            message: "Gender must be either 'male' or 'female'",
+          })
+          .optional(),
+        dateOfBirth: z.string().optional(),
+        email: z
+          .string()
+          .email({ message: 'Invalid email address' })
+          .optional(),
+        contactNo: z
+          .string()
+          .regex(/^\+?[0-9]{10,15}$/, {
+            message: 'Contact number must be a valid phone number',
+          })
+          .optional(),
+        emergencyContactNo: z
+          .string()
+          .regex(/^\+?[0-9]{10,15}$/, {
+            message: 'Emergency contact number must be a valid phone number',
+          })
+          .optional(),
+        blodGroup: z
+          .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'], {
+            message: 'Blood group must be a valid type',
+          })
+          .optional(),
+        presentAddress: z
+          .string()
+          .min(10, { message: 'Address must be at least 10 characters long' })
+          .max(200, { message: 'Address must not exceed 200 characters' })
+          .optional(),
+        permanentAddress: z
+          .string()
+          .min(10, { message: 'Address must be at least 10 characters long' })
+          .max(200, { message: 'Address must not exceed 200 characters' })
+          .optional(),
+        profileImg: z
+          .string()
+          .url({ message: 'Profile image must be a valid URL' })
+          .optional(),
+        guardian: guardianValidationSchema.partial(), // All guardian fields optional
+        localGuardian: localGuardianValidationSchema.partial(), // All local guardian fields optional
+        admissionSemester: z.string().optional(),
+        isDeleted: z.boolean().optional(),
+      })
+      .partial()
+      .optional(),
+  }),
+});
+
 // Exporting the validation schema
 export const studentValidations = {
   createStudentValidationSchema,
+  updateStudentValidationSchema,
 };
