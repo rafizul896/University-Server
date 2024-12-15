@@ -40,7 +40,7 @@ const deleteAStudent = catchAsync(async (req, res) => {
 
 const updateStudent = catchAsync(async (req, res) => {
   const { studentId } = req.params;
-  const {student} = req.body;
+  const { student } = req.body;
 
   const result = await StudentServices.updateSudentIntoDB(studentId, student);
 

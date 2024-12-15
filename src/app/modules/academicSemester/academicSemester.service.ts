@@ -7,7 +7,7 @@ import httpStatus from 'http-status';
 const createAcademicSemesterIntoDB = async (payload: TAcademicSemester) => {
   // semester name --> semester code
   if (academicSemesterNameCodeMapper[payload.name] !== payload.code) {
-    throw new AppError(httpStatus.FORBIDDEN,'Invalid Semester Code');
+    throw new AppError(httpStatus.FORBIDDEN, 'Invalid Semester Code');
   }
 
   const result = await AcademicSemester.create(payload);
@@ -33,7 +33,7 @@ const updateAcademicSemesterIntoDB = async (
     payload.code &&
     academicSemesterNameCodeMapper[payload.name] !== payload.code
   ) {
-    throw new AppError(httpStatus.FORBIDDEN,'Invalid Semester Code');
+    throw new AppError(httpStatus.FORBIDDEN, 'Invalid Semester Code');
   }
 
   const result = await AcademicSemester.findByIdAndUpdate(
