@@ -12,7 +12,7 @@ const handleCastError = (err: Error.CastError): TGenericErrorResponce => {
 
   return {
     statusCode,
-    message: 'Validation Error',
+    message: 'Invalid id',
     errorSources,
   };
 };
