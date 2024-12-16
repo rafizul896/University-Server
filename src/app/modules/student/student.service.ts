@@ -5,7 +5,9 @@ import httpStatus from 'http-status';
 import { User } from '../user/user.model';
 import { IStudent } from './student.interface';
 
-const getAllStudentsFromDB = async () => {
+const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
+
+  
   const result = await Student.find()
     .populate('admissionSemester')
     .populate({
