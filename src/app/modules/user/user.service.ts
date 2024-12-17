@@ -58,10 +58,12 @@ const createStudentIntoDB = async (password: string, payload: IStudent) => {
     }
 
     // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-  } catch (err) {
+  } catch (err: unknown) {
     await session.abortTransaction();
     await session.endSession();
-    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create student');
+    if (err instanceof Error) {
+      throw new AppError(httpStatus.BAD_REQUEST, err.message);
+    }
   }
 };
 

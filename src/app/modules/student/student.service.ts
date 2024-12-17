@@ -6,8 +6,6 @@ import { User } from '../user/user.model';
 import { IStudent } from './student.interface';
 
 const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
-
-  
   const result = await Student.find()
     .populate('admissionSemester')
     .populate({
@@ -104,10 +102,12 @@ const deleteAStudentFromDB = async (id: string) => {
 
     return deletedStudent;
     // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-  } catch (err) {
+  } catch (err: unknown) {
     await session.abortTransaction();
     await session.endSession();
-    throw new Error('Failed to create student');
+    if (err instanceof Error) {
+      throw new Error(err.message);
+    }
   }
 };
 
