@@ -1,7 +1,6 @@
 import { Error } from 'mongoose';
 import { TErrorSources, TGenericErrorResponce } from '../interface/error';
 
-
 const handleValidationError = (
   err: Error.ValidationError,
 ): TGenericErrorResponce => {
