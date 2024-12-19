@@ -21,7 +21,7 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
   });
 
   // Filtering
-  const excludeFields = ['searchTerm', 'sort', 'limit'];
+  const excludeFields = ['searchTerm', 'sort', 'limit','page'];
   excludeFields.forEach((el) => delete queryObj[el]);
 
   const filterQuery = searchQuery
@@ -42,14 +42,24 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
 
   const sortQuery = filterQuery.sort(sort);
 
-  let limit = 0;
+  let page = 1;
+  let limit = 1;
+  let skip = 0;
 
   if (query.limit) {
     limit = query.limit as number;
   }
 
-  const limitQuery = await sortQuery.limit(limit);
+  if (query.page) {
+    page = Number(query.page);
+    skip = (page - 1) * limit;
+  }
 
+  const paginateQuery = sortQuery.skip(skip);
+
+  const limitQuery = await paginateQuery.limit(limit);
+
+  console.log(query);
   return limitQuery;
 };
 
@@ -89,7 +99,6 @@ const updateSudentIntoDB = (studentId: string, payload: Partial<IStudent>) => {
       modifiedUpdatedData[`localGuardian.${key}`] = value;
     }
   }
-  console.log(modifiedUpdatedData);
 
   const result = Student.findOneAndUpdate(
     { id: studentId },
@@ -136,7 +145,6 @@ const deleteAStudentFromDB = async (id: string) => {
     await session.endSession();
 
     return deletedStudent;
-    // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   } catch (err: unknown) {
     await session.abortTransaction();
     await session.endSession();
