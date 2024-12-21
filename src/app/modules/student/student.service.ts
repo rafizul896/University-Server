@@ -66,7 +66,7 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
     fields = (query.fields as string).split(',').join(' ');
   }
 
-  const fieldQuery = await limitQuery.select(fields)
+  const fieldQuery = await limitQuery.select(fields);
 
   return fieldQuery;
 };
