@@ -32,7 +32,7 @@ const deleteCourseFromDB = async (id: string) => {
   return result;
 };
 
-export const courseServices = {
+export const CourseServices = {
   createCourseIntoDB,
   getAllCoursesFromDB,
   getSingleCourseFromDB,
