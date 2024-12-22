@@ -6,17 +6,14 @@ const preRequisiteCourseValidationSchema = z.object({
 });
 
 // Zod schema for creating a course
-export const createCourseValidationSchema = z.object({
+const createCourseValidationSchema = z.object({
   body: z.object({
     title: z
       .string()
       .trim()
       .nonempty('Title is required')
       .max(255, 'Title must be less than 255 characters'),
-    prefix: z
-      .string()
-      .trim()
-      .nonempty('Prefix is required'),
+    prefix: z.string().trim().nonempty('Prefix is required'),
     code: z
       .number()
       .int('Code must be an integer')
@@ -30,7 +27,7 @@ export const createCourseValidationSchema = z.object({
 });
 
 // Zod schema for updating a course
-export const updateCourseValidationSchema = z.object({
+const updateCourseValidationSchema = z.object({
   body: z.object({
     title: z
       .string()
@@ -38,11 +35,7 @@ export const updateCourseValidationSchema = z.object({
       .nonempty('Title is required')
       .max(255, 'Title must be less than 255 characters')
       .optional(),
-    prefix: z
-      .string()
-      .trim()
-      .nonempty('Prefix is required')
-      .optional(),
+    prefix: z.string().trim().nonempty('Prefix is required').optional(),
     code: z
       .number()
       .int('Code must be an integer')
@@ -56,3 +49,8 @@ export const updateCourseValidationSchema = z.object({
     preRequisiteCourses: z.array(preRequisiteCourseValidationSchema).optional(),
   }),
 });
+
+export const CourseValidations = {
+  createCourseValidationSchema,
+  updateCourseValidationSchema,
+};

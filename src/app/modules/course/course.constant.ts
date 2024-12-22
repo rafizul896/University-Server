@@ -1,0 +1,1 @@
+export const CourseSearchavleFields = ['title','code','prefix']
