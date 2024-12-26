@@ -21,8 +21,9 @@ const createSemesterRegistrationIntoDB = async (
   }
 
   // check if the semester is already registered!
-  const isSemesterRegistrationExists =
-    await SemesterRegistration.findOne(academicSemester);
+  const isSemesterRegistrationExists = await SemesterRegistration.findOne({
+    academicSemester,
+  });
 
   if (isSemesterRegistrationExists) {
     throw new AppError(
@@ -35,6 +36,27 @@ const createSemesterRegistrationIntoDB = async (
   return result;
 };
 
+const getAllSemesterRegistrationsFromDB = async () => {
+  const result = await SemesterRegistration.find();
+  return result;
+};
+
+const getSingleSemesterRegistrationFromDB = async (id: string) => {
+  const result = await SemesterRegistration.findById(id);
+  return result;
+};
+
+const updateSemesterRegistrationIntoDB = async (
+  id: string,
+  payload: Partial<TSemesterRegistration>,
+) => {
+  const result = await SemesterRegistration.findByIdAndUpdate(id, payload);
+  return result;
+};
+
 export const SemesterRegistrationServices = {
   createSemesterRegistrationIntoDB,
+  getAllSemesterRegistrationsFromDB,
+  getSingleSemesterRegistrationFromDB,
+  updateSemesterRegistrationIntoDB,
 };
