@@ -27,6 +27,7 @@ const createOfferedCourseValidationSchema = z.object({
     })
     .refine(
       (body) => {
+        
         // startTime : 10:30  => 1970-01-01T10:30
         //endTime : 12:30  =>  1970-01-01T12:30
 
