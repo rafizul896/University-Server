@@ -44,6 +44,11 @@ const loginUser = async (payload: TLoginUser) => {
   return { accessToken, needsPasswordChange: user?.needsPasswordChange };
 };
 
+const changePassword = () => {
+
+}
+
 export const AuthServices = {
   loginUser,
+  changePassword
 };
