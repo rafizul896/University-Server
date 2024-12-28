@@ -8,7 +8,7 @@ import { USER_ROLE } from '../user/user.constant';
 const router = express.Router();
 
 // will call controller func
-router.get('/',auth(USER_ROLE.student), StudentController.getAllStudents);
+router.get('/',auth(USER_ROLE.student,USER_ROLE.admin), StudentController.getAllStudents);
 router.get('/:studentId', StudentController.getAStudent);
 router.patch(
   '/:studentId',

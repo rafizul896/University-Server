@@ -73,4 +73,14 @@ userSchema.statics.isPasswordMatched = async function (
   return await bcrypt.compare(plainTexrPassword, hashedPassword);
 };
 
+userSchema.statics.isJWTIssuedBeforePasswordChange = async function (
+  passwordChangedTimestamp: Date,
+  jwtIssuedTimestamp: number,
+) {
+  const passwordChangedTime =
+    new Date(passwordChangedTimestamp).getTime() / 1000;
+
+  return passwordChangedTime > jwtIssuedTimestamp;
+};
+
 export const User = model<TUser, UserModel>('User', userSchema);

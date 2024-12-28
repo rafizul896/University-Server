@@ -5,7 +5,7 @@ import { USER_ROLE } from './user.constant';
 export interface TUser {
   id: string;
   password: string;
-  passwordChangedAt?: Date,
+  passwordChangedAt?: Date;
   needsPasswordChange: boolean;
   role: 'admin' | 'student' | 'faculty';
   status: 'in-progress' | 'blocked';
@@ -21,7 +21,11 @@ export interface UserModel extends Model<TUser> {
     plainTexrPassword: string,
     hashedPassword: string,
   ): Promise<boolean>;
+  //
+  isJWTIssuedBeforePasswordChange(
+    passwordChangedTimestamp: Date,
+    jwtIssuedTimestamp: number,
+  ): Promise<boolean>;
 }
 
 export type TUserRole = keyof typeof USER_ROLE;
-

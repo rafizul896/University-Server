@@ -4,6 +4,7 @@ import { TUserRole } from '../modules/user/user.interface';
 import catchAsync from '../utils/catchAsynce';
 import httpStatus from 'http-status';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { User } from '../modules/user/user.model';
 
 const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req, res, next) => {
@@ -14,19 +15,48 @@ const auth = (...requiredRoles: TUserRole[]) => {
     }
 
     // check if the token is valid
-    jwt.verify(token, config.jwt_access_secret as string, (err, decoded) => {
-      if (err) {
-        throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authroized!');
-      }
+    const decoded = jwt.verify(
+      token,
+      config.jwt_access_secret as string,
+    ) as JwtPayload;
 
-      const role = (decoded as JwtPayload).role;
+    const { role, userId, iat } = decoded;
 
-      if (requiredRoles && !requiredRoles.includes(role)) {
-        throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authroized!');
-      }
+    const user = await User.isUserExistsByCustomId(userId);
 
-      req.user = decoded as JwtPayload;
-    });
+    if (!user) {
+      throw new AppError(httpStatus.FORBIDDEN, 'This user is not Found!');
+    }
+
+    // checking if the user already deleted
+    const isDeleted = user?.isDeleted;
+
+    if (isDeleted) {
+      throw new AppError(httpStatus.FORBIDDEN, 'This user is Deleted!');
+    }
+
+    // checking if the user already blocked
+    const userStatus = user?.status;
+
+    if (userStatus === 'blocked') {
+      throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked!');
+    }
+
+    if (
+      user.passwordChangedAt &&
+     await User.isJWTIssuedBeforePasswordChange(
+        user.passwordChangedAt,
+        iat as number,
+      )
+    ) {
+      throw new AppError(httpStatus.FORBIDDEN, 'You are not authroized');
+    }
+
+    if (requiredRoles && !requiredRoles.includes(role)) {
+      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authroized!');
+    }
+
+    req.user = decoded as JwtPayload;
 
     next();
   });
