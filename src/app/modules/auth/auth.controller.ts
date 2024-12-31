@@ -48,13 +48,13 @@ const refreshToken = catchAsync(async (req, res) => {
 });
 
 const forgetPassword = catchAsync(async (req, res) => {
-  const { refreshToken } = req.cookies;
-  const result = await AuthServices.forgetPassword(refreshToken);
+  const { id } = req.body;
+  const result = await AuthServices.forgetPassword(id);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Forget password is creted succesfully!',
+    message: 'Reset link is generated succesfully!',
     data: result,
   });
 });
