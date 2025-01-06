@@ -7,7 +7,11 @@ import { IStudent } from '../student/student.interface';
 import { Student } from '../student/student.model';
 import { TUser } from './user.interface';
 import { User } from './user.model';
-import { generateAdminId, generateFacultyId, generateStudentId } from './user.utils';
+import {
+  generateAdminId,
+  generateFacultyId,
+  generateStudentId,
+} from './user.utils';
 import httpStatus from 'http-status';
 import { Faculty } from '../faculty/faculty.model';
 import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
@@ -21,8 +25,9 @@ const createStudentIntoDB = async (password: string, payload: IStudent) => {
   // if password is not given then use default password
   userData.password = password || (config.default_password as string);
 
-  //   set student role
+  //   set student role & email
   userData.role = 'student';
+  userData.email = payload.email;
 
   // find acamdemic semester info
   const admissionSemester = await AcademicSemester.findById(
@@ -76,8 +81,9 @@ const createFacultyIntoDB = async (password: string, payload: TFaculty) => {
   //if password is not given , use deafult password
   userData.password = password || (config.default_password as string);
 
-  //set student role
+  //set faculty role & email
   userData.role = 'faculty';
+  userData.email = payload.email;
 
   // find academic department info
   const academicDepartment = await AcademicDepartment.findById(
@@ -134,8 +140,9 @@ const createAdminIntoDB = async (password: string, payload: TFaculty) => {
   //if password is not given , use deafult password
   userData.password = password || (config.default_password as string);
 
-  //set student role
+  //set admin role & email
   userData.role = 'admin';
+  userData.email = payload.email;
 
   const session = await mongoose.startSession();
 
