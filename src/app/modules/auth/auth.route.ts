@@ -34,7 +34,7 @@ router.post(
 
 router.post(
   '/reset-password',
-  validateRequest(AuthValidations.forgetPasswordValidationSchema),
+  validateRequest(AuthValidations.resetPasswordValidationSchema),
   AuthControllers.resetPassword,
 );
 

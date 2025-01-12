@@ -3,8 +3,9 @@ import AppError from '../errors/AppError';
 import { TUserRole } from '../modules/user/user.interface';
 import catchAsync from '../utils/catchAsynce';
 import httpStatus from 'http-status';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import { JwtPayload } from 'jsonwebtoken';
 import { User } from '../modules/user/user.model';
+import { verifyToken } from '../modules/auth/auth.utils';
 
 const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req, res, next) => {
@@ -15,10 +16,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
     }
 
     // check if the token is valid
-    const decoded = jwt.verify(
-      token,
-      config.jwt_access_secret as string,
-    ) as JwtPayload;
+    const decoded = verifyToken(token, config.jwt_access_secret as string);
 
     const { role, userId, iat } = decoded;
 
@@ -44,10 +42,10 @@ const auth = (...requiredRoles: TUserRole[]) => {
 
     if (
       user.passwordChangedAt &&
-     await User.isJWTIssuedBeforePasswordChange(
+      (await User.isJWTIssuedBeforePasswordChange(
         user.passwordChangedAt,
         iat as number,
-      )
+      ))
     ) {
       throw new AppError(httpStatus.FORBIDDEN, 'You are not authroized');
     }
