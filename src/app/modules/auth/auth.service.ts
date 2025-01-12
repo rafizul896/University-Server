@@ -167,6 +167,49 @@ const refreshToken = async (token: string) => {
 
 const forgetPassword = async (userId: string) => {
   const user = await User.isUserExistsByCustomId(userId);
+  if (!user) {
+    throw new AppError(httpStatus.FORBIDDEN, 'This user is not Found!');
+  }
+
+  // checking if the user already deleted
+  const isDeleted = user?.isDeleted;
+
+  if (isDeleted) {
+    throw new AppError(httpStatus.FORBIDDEN, 'This user is Deleted!');
+  }
+
+  // checking if the user already blocked
+  const userStatus = user?.status;
+
+  if (userStatus === 'blocked') {
+    throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked!');
+  }
+
+  if (!user.email) {
+    throw new AppError(httpStatus.NOT_FOUND, 'This user is not Exists!');
+  }
+
+  // create token and send to the client
+  const jwtPayload = {
+    userId: user.id,
+    role: user.role,
+  };
+
+  const resetToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    '50m',
+  );
+
+  const resetUiLink = `${config.reset_password_uilink}?id=${user.id}&token=${resetToken}`;
+  await sendEmail(user.email, resetUiLink);
+};
+
+const resetPassword = async (
+  token: string,
+  payload: { id: string; newPassword: string },
+) => {
+  const user = await User.isUserExistsByCustomId(payload?.id);
 
   if (!user) {
     throw new AppError(httpStatus.FORBIDDEN, 'This user is not Found!');
@@ -186,21 +229,11 @@ const forgetPassword = async (userId: string) => {
     throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked!');
   }
 
-  // create token and send to the client
-  const jwtPayload = {
-    userId: user.id,
-    role: user.role,
-  };
+  if (!user.email) {
+    throw new AppError(httpStatus.NOT_FOUND, 'This user is not Exists!');
+  }
 
-  const resetToken = createToken(
-    jwtPayload,
-    config.jwt_access_secret as string,
-    '10m',
-  );
-
-  const resetUiLink = `${config.reset_password_uilink}?id=${user.id}&token=${resetToken}`;
-
-  await sendEmail(user.email, resetUiLink);
+  console.log({ token, payload });
 };
 
 export const AuthServices = {
@@ -208,4 +241,5 @@ export const AuthServices = {
   changePassword,
   refreshToken,
   forgetPassword,
+  resetPassword,
 };
