@@ -233,7 +233,25 @@ const resetPassword = async (
     throw new AppError(httpStatus.NOT_FOUND, 'This user is not Exists!');
   }
 
-  console.log({ token, payload });
+  const decoded = jwt.verify(
+    token,
+    config.jwt_access_secret as string,
+  ) as JwtPayload;
+
+  if (payload.id !== decoded.userId) {
+    throw new AppError(httpStatus.FORBIDDEN, 'You are Forbidden');
+  }
+
+  // hash new password
+  const newHashedPassword = await bcrypt.hash(
+    payload.newPassword,
+    Number(config.bcrypt_salt_rounds),
+  );
+
+  await User.findOneAndUpdate(
+    { id: decoded.userId, role: decoded.role },
+    { password: newHashedPassword, passwordChangedAt: new Date() },
+  );
 };
 
 export const AuthServices = {
