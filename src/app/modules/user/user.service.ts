@@ -17,6 +17,8 @@ import { Faculty } from '../faculty/faculty.model';
 import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
 import { TFaculty } from '../faculty/faculty.interface';
 import { Admin } from '../admin/admin.model';
+import { USER_ROLE } from './user.constant';
+import { JwtPayload } from 'jsonwebtoken';
 
 const createStudentIntoDB = async (password: string, payload: IStudent) => {
   // create a use object
@@ -182,10 +184,23 @@ const createAdminIntoDB = async (password: string, payload: TFaculty) => {
   }
 };
 
-const getMe = async(id: string, role: string) => {
-  const result = await
+const getMe = async (payload: JwtPayload) => {
+  const { userId, role } = payload;
+  let result;
 
-  return result
+  if (role === USER_ROLE.student) {
+    result = await Student.findOne({ id: userId }).populate('user');
+  }
+
+  if (role === USER_ROLE.faculty) {
+    result = await Faculty.findOne({ id: userId }).populate('user');
+  }
+
+  if (role === USER_ROLE.admin) {
+    result = await Admin.findOne({ id: userId }).populate('user');
+  }
+
+  return result;
 };
 
 export const UserServices = {
