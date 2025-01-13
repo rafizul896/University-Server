@@ -3,11 +3,16 @@ import { UserServices } from './user.service';
 import httpStatus from 'http-status';
 import sendResponse from '../../utils/sendResponse';
 import catchAsync from '../../utils/catchAsynce';
+import { MulterUploadFile } from '../../interface/globalTypes';
 
 const createStudent: RequestHandler = catchAsync(async (req, res) => {
   const { student: studentData, password } = req.body;
 
-  const result = await UserServices.createStudentIntoDB(password, studentData);
+  const result = await UserServices.createStudentIntoDB(
+    req?.file as MulterUploadFile,
+    password,
+    studentData,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

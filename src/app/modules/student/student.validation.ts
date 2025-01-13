@@ -112,10 +112,10 @@ const createStudentValidationSchema = z.object({
         .nonempty({ message: 'Permanent address is required' })
         .min(10, { message: 'Address must be at least 10 characters long' })
         .max(200, { message: 'Address must not exceed 200 characters' }),
-      profileImg: z
-        .string()
-        .url({ message: 'Profile image must be a valid URL' })
-        .optional(),
+      // profileImg: z
+      //   .string()
+      //   .url({ message: 'Profile image must be a valid URL' })
+      //   .optional(),
       guardian: guardianValidationSchema,
       localGuardian: localGuardianValidationSchema,
       admissionSemester: z.string(),

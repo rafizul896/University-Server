@@ -19,8 +19,14 @@ import { TFaculty } from '../faculty/faculty.interface';
 import { Admin } from '../admin/admin.model';
 import { USER_ROLE } from './user.constant';
 import { JwtPayload } from 'jsonwebtoken';
+import { MulterUploadFile } from '../../interface/globalTypes';
+import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 
-const createStudentIntoDB = async (password: string, payload: IStudent) => {
+const createStudentIntoDB = async (
+  file: MulterUploadFile,
+  password: string,
+  payload: IStudent,
+) => {
   // create a use object
   const userData: Partial<TUser> = {};
 
@@ -45,6 +51,10 @@ const createStudentIntoDB = async (password: string, payload: IStudent) => {
       admissionSemester as TAcademicSemester,
     );
 
+    // send Image to cloudinary
+    const imageName = `${userData.id}${payload?.name?.firstName}`;
+    const { secure_url } = await sendImageToCloudinary(imageName, file?.path);
+
     //   create a user (transaction-1)
     const newUser = await User.create([userData], { session });
 
@@ -55,6 +65,7 @@ const createStudentIntoDB = async (password: string, payload: IStudent) => {
       // set id ,_id as user
       payload.id = newUser[0].id;
       payload.user = newUser[0]._id; // ref _id
+      payload.profileImg = secure_url;
 
       //   create a student (transaction-2)
       const newStudent = await Student.create([payload], { session });

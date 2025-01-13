@@ -7,7 +7,6 @@ import { JwtPayload } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { createToken, verifyToken } from './auth.utils';
 import { sendEmail } from '../../utils/sendEmail';
-import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 
 const loginUser = async (payload: TLoginUser) => {
   const user = await User.isUserExistsByCustomId(payload?.id);
@@ -52,8 +51,6 @@ const loginUser = async (payload: TLoginUser) => {
     config.jwt_refresh_secret as string,
     config.jwt_refresh_expipes_in as string,
   );
-
-  await sendImageToCloudinary()
 
   return {
     accessToken,
