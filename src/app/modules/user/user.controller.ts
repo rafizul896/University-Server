@@ -49,7 +49,19 @@ const getMe = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: ' succesfully',
+    message: 'User is retrieved succesfully',
+    data: result,
+  });
+});
+
+const changeStatus = catchAsync(async (req, res) => {
+  const { status } = req.body;
+  const result = await UserServices.changeStatus(req.params.id, status);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Status is updated succesfully',
     data: result,
   });
 });
@@ -59,4 +71,5 @@ export const UserControllers = {
   createFaculty,
   createAdmin,
   getMe,
+  changeStatus,
 };

@@ -5,6 +5,7 @@ import validateRequest from '../../middlewares/validateRequest';
 import { createFacultyValidationSchema } from '../faculty/faculty.validation';
 import { createAdminValidationSchema } from '../admin/admin.validation';
 import auth from '../../middlewares/auth';
+import { UserValidation } from './user.validation';
 
 const router = Router();
 
@@ -24,6 +25,13 @@ router.post(
   '/create-admin',
   validateRequest(createAdminValidationSchema),
   UserControllers.createAdmin,
+);
+
+router.post(
+  '/change-status/:id',
+  auth('admin'),
+  validateRequest(UserValidation.changeStatusValidationSchema),
+  UserControllers.changeStatus,
 );
 
 router.get('/me', auth('student', 'faculty', 'admin'), UserControllers.getMe);

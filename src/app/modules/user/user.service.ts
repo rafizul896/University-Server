@@ -203,9 +203,15 @@ const getMe = async (payload: JwtPayload) => {
   return result;
 };
 
+const changeStatus = async (id: string, status: string) => {
+  const result = await User.findByIdAndUpdate(id, { status }, { new: true });
+  return result;
+};
+
 export const UserServices = {
   createStudentIntoDB,
   createFacultyIntoDB,
   createAdminIntoDB,
   getMe,
+  changeStatus,
 };
