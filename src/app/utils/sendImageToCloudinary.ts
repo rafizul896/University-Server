@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import config from '../config';
 import multer from 'multer';
+import fs from 'fs';
 
 export const sendImageToCloudinary = async (
   imageName: string,
@@ -20,9 +21,17 @@ export const sendImageToCloudinary = async (
     })
     .catch((error) => {
       console.log(error);
-    }); 
+    });
 
-  console.log(uploadResult);
+  fs.unlink(path, (err) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log('This file id Deleted!');
+    }
+  });
+
+  return uploadResult;
 };
 
 const storage = multer.diskStorage({
