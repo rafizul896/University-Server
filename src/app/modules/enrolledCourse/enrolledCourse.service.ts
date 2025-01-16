@@ -7,6 +7,7 @@ import EnrolledCourse from './enrolledCourse.model';
 import { TEnrolledCourse } from './enrolledCourse.interface';
 import mongoose from 'mongoose';
 import { SemesterRegistration } from '../semesterRegistration/semesterRegistration.model';
+import { Course } from '../course/course.model';
 
 const createEnrolledCourseIntoDB = async (
   userId: string,
@@ -26,6 +27,10 @@ const createEnrolledCourseIntoDB = async (
     throw new AppError(httpStatus.NOT_FOUND, 'Offered course is not found!');
   }
 
+  if (isOfferedCourseExists.maxCapacity <= 0) {
+    throw new AppError(httpStatus.BAD_GATEWAY, 'Capacity is full !');
+  }
+
   const student = await Student.findOne({ id: userId }, { _id: 1 });
 
   if (!student) {
@@ -37,6 +42,10 @@ const createEnrolledCourseIntoDB = async (
     offeredCourse,
     student: student?._id,
   });
+
+  // check total credits exceeds maxCredit
+  const course = await Course.findById(isOfferedCourseExists.course);
+  const currentCredit = course?.credits;
 
   if (!isStudentAlreadyEnrolled) {
     throw new AppError(httpStatus.CONFLICT, 'Student is already enrolled!');
@@ -79,49 +88,59 @@ const createEnrolledCourseIntoDB = async (
     },
   ]);
 
-   // total enrolled credits + new enrolled course credit > maxCredit
-// const 
+  // total enrolled credits + new enrolled course credit > maxCredit
+  const totalCredits =
+    enrolledCourses.length > 0 ? enrolledCourses[0].totalEnrolledCredits : 0;
+  if (
+    totalCredits &&
+    semesterRegistration &&
+    totalCredits + currentCredit > semesterRegistration?.maxCredit
+  ) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'You have exceeded maximun number of credits!',
+    );
+  }
+  const session = await mongoose.startSession();
 
-    // const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+    const result = await EnrolledCourse.create(
+      [
+        {
+          semesterRegistration: isOfferedCourseExists.semesterRegistration,
+          academicSemester: isOfferedCourseExists.academicSemester,
+          academicFaculty: isOfferedCourseExists.academicFaculty,
+          academicDepartment: isOfferedCourseExists.academicDepartment,
+          offeredCourse,
+          isEnrolled: true,
+          course: isOfferedCourseExists.course,
+          student: student?._id,
+          faculty: isOfferedCourseExists.faculty,
+        },
+      ],
+      { session },
+    );
 
-    // try {
-    //   session.startTransaction();
-    //   const result = await EnrolledCourse.create(
-    //     [
-    //       {
-    //         semesterRegistration: isOfferedCourseExists.semesterRegistration,
-    //         academicSemester: isOfferedCourseExists.academicSemester,
-    //         academicFaculty: isOfferedCourseExists.academicFaculty,
-    //         academicDepartment: isOfferedCourseExists.academicDepartment,
-    //         offeredCourse,
-    //         isEnrolled: true,
-    //         course: isOfferedCourseExists.course,
-    //         student: student?._id,
-    //         faculty: isOfferedCourseExists.faculty,
-    //       },
-    //     ],
-    //     { session },
-    //   );
+    if (!result) {
+      throw new AppError(httpStatus.CONFLICT, 'Failed to Enrolled Course!');
+    }
 
-    //   if (!result) {
-    //     throw new AppError(httpStatus.CONFLICT, 'Failed to Enrolled Course!');
-    //   }
+    const maxCapacity = isOfferedCourseExists.maxCapacity;
 
-    //   const maxCapacity = isOfferedCourseExists.maxCapacity;
+    await OfferedCourse.findByIdAndUpdate(offeredCourse, {
+      maxCapacity: maxCapacity - 1,
+    });
 
-    //   await OfferedCourse.findByIdAndUpdate(offeredCourse, {
-    //     maxCapacity: maxCapacity - 1,
-    //   });
+    await session.commitTransaction();
+    await session.endSession();
 
-    //   await session.commitTransaction();
-    //   await session.endSession();
-
-    //   return result;
-    // } catch (err: any) {
-    //   await session.abortTransaction();
-    //   await session.endSession();
-    //   throw new Error(err);
-    // }
+    return result;
+  } catch (err: any) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw new Error(err);
+  }
 };
 
 const getMyEnrolledCoursesFromDB = async () => {};
