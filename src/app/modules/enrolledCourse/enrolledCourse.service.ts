@@ -6,6 +6,7 @@ import { Student } from '../student/student.model';
 import EnrolledCourse from './enrolledCourse.model';
 import { TEnrolledCourse } from './enrolledCourse.interface';
 import mongoose from 'mongoose';
+import { SemesterRegistration } from '../semesterRegistration/semesterRegistration.model';
 
 const createEnrolledCourseIntoDB = async (
   userId: string,
@@ -37,50 +38,90 @@ const createEnrolledCourseIntoDB = async (
     student: student?._id,
   });
 
-  if (isStudentAlreadyEnrolled) {
+  if (!isStudentAlreadyEnrolled) {
     throw new AppError(httpStatus.CONFLICT, 'Student is already enrolled!');
   }
 
-  const session = await mongoose.startSession();
+  //   check total credits exceeds maxCredit
+  const semesterRegistration = await SemesterRegistration.findById(
+    isOfferedCourseExists.semesterRegistration,
+  ).select('maxCredit');
 
-  try {
-    session.startTransaction();
-    const result = await EnrolledCourse.create(
-      [
-        {
-          semesterRegistration: isOfferedCourseExists.semesterRegistration,
-          academicSemester: isOfferedCourseExists.academicSemester,
-          academicFaculty: isOfferedCourseExists.academicFaculty,
-          academicDepartment: isOfferedCourseExists.academicDepartment,
-          offeredCourse,
-          isEnrolled:true,
-          course: isOfferedCourseExists.course,
-          student: student?._id,
-          faculty: isOfferedCourseExists.faculty,
-        },
-      ],
-      { session },
-    );
+  const enrolledCourses = await EnrolledCourse.aggregate([
+    {
+      $match: {
+        semesterRegistration: isOfferedCourseExists.semesterRegistration,
+        student: student._id,
+      },
+    },
+    {
+      $lookup: {
+        from: 'courses',
+        localField: 'course',
+        foreignField: '_id',
+        as: 'enrolledCourseData',
+      },
+    },
+    {
+      $unwind: '$enrolledCourseData',
+    },
+    {
+      $group: {
+        _id: null,
+        totalEnrolledCredits: { $sum: '$enrolledCourseData.credits' },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        totalEnrolledCredits: 1,
+      },
+    },
+  ]);
 
-    if (!result) {
-      throw new AppError(httpStatus.CONFLICT, 'Failed to Enrolled Course!');
-    }
+   // total enrolled credits + new enrolled course credit > maxCredit
+// const 
 
-    const maxCapacity = isOfferedCourseExists.maxCapacity;
+    // const session = await mongoose.startSession();
 
-    await OfferedCourse.findByIdAndUpdate(offeredCourse, {
-      maxCapacity: maxCapacity - 1,
-    });
+    // try {
+    //   session.startTransaction();
+    //   const result = await EnrolledCourse.create(
+    //     [
+    //       {
+    //         semesterRegistration: isOfferedCourseExists.semesterRegistration,
+    //         academicSemester: isOfferedCourseExists.academicSemester,
+    //         academicFaculty: isOfferedCourseExists.academicFaculty,
+    //         academicDepartment: isOfferedCourseExists.academicDepartment,
+    //         offeredCourse,
+    //         isEnrolled: true,
+    //         course: isOfferedCourseExists.course,
+    //         student: student?._id,
+    //         faculty: isOfferedCourseExists.faculty,
+    //       },
+    //     ],
+    //     { session },
+    //   );
 
-    await session.commitTransaction();
-    await session.endSession();
+    //   if (!result) {
+    //     throw new AppError(httpStatus.CONFLICT, 'Failed to Enrolled Course!');
+    //   }
 
-    return result;
-  } catch (err: any) {
-    await session.abortTransaction();
-    await session.endSession();
-    throw new Error(err);
-  }
+    //   const maxCapacity = isOfferedCourseExists.maxCapacity;
+
+    //   await OfferedCourse.findByIdAndUpdate(offeredCourse, {
+    //     maxCapacity: maxCapacity - 1,
+    //   });
+
+    //   await session.commitTransaction();
+    //   await session.endSession();
+
+    //   return result;
+    // } catch (err: any) {
+    //   await session.abortTransaction();
+    //   await session.endSession();
+    //   throw new Error(err);
+    // }
 };
 
 const getMyEnrolledCoursesFromDB = async () => {};
