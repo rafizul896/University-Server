@@ -146,7 +146,12 @@ const createEnrolledCourseIntoDB = async (
   }
 };
 
-const getMyEnrolledCoursesFromDB = async () => {};
+const getMyEnrolledCoursesFromDB = async (
+  studentId: string,
+  payload: string,
+) => {
+  console.log(studentId, payload);
+};
 
 const updateEnrolledCourseMarksIntoDB = async (
   facultyId: string,
