@@ -1,58 +1,47 @@
 import { z } from 'zod';
 
-const preRequisiteCourseValidationSchema = z.object({
+const PreRequisiteCourseValidationSchema = z.object({
   course: z.string(),
-  isdeleted: z.boolean().optional().default(false),
+  isDeleted: z.boolean().optional(),
 });
 
-// Zod schema for creating a course
 const createCourseValidationSchema = z.object({
   body: z.object({
-    title: z
-      .string()
-      .trim()
-      .nonempty('Title is required')
-      .max(255, 'Title must be less than 255 characters'),
-    prefix: z.string().trim().nonempty('Prefix is required'),
-    code: z
-      .number()
-      .int('Code must be an integer')
-      .positive('Code must be positive'),
-    credits: z
-      .number()
-      .int('Credits must be an integer')
-      .positive('Credits must be positive'),
-    preRequisiteCourses: z.array(preRequisiteCourseValidationSchema).optional(),
+    title: z.string(),
+    prefix: z.string(),
+    code: z.number(),
+    credits: z.number(),
+    preRequisiteCourses: z.array(PreRequisiteCourseValidationSchema).optional(),
     isDeleted: z.boolean().optional(),
   }),
 });
 
-// Zod schema for updating a course
+const updatePreRequisiteCourseValidationSchema = z.object({
+  course: z.string(),
+  isDeleted: z.boolean().optional(),
+});
+
 const updateCourseValidationSchema = z.object({
   body: z.object({
-    title: z
-      .string()
-      .trim()
-      .nonempty('Title is required')
-      .max(255, 'Title must be less than 255 characters')
+    title: z.string().optional(),
+    prefix: z.string().optional(),
+    code: z.number().optional(),
+    credits: z.number().optional(),
+    preRequisiteCourses: z
+      .array(updatePreRequisiteCourseValidationSchema)
       .optional(),
-    prefix: z.string().trim().nonempty('Prefix is required').optional(),
-    code: z
-      .number()
-      .int('Code must be an integer')
-      .positive('Code must be positive')
-      .optional(),
-    credits: z
-      .number()
-      .int('Credits must be an integer')
-      .positive('Credits must be positive')
-      .optional(),
-    preRequisiteCourses: z.array(preRequisiteCourseValidationSchema).optional(),
     isDeleted: z.boolean().optional(),
+  }),
+});
+
+const facultiesWithCourseValidationSchema = z.object({
+  body: z.object({
+    faculties: z.array(z.string()),
   }),
 });
 
 export const CourseValidations = {
   createCourseValidationSchema,
   updateCourseValidationSchema,
+  facultiesWithCourseValidationSchema,
 };

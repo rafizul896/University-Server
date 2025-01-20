@@ -1,90 +1,18 @@
-import mongoose from 'mongoose';
-import { Student } from './student.model';
-import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
-import { User } from '../user/user.model';
-import { IStudent } from './student.interface';
-import QueryBuilder from '../../builder/QueryBuider';
-
-const studentSearchableFields = [
-  'email',
-  'name.firstName',
-  'name.lastName',
-  'presentAddress',
-];
-
-// const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
-//   const queryObj = { ...query };
-//   const studentSearchableFields = ['email', 'name.firstName', 'presentAddress'];
-//   let searchTerm = '';
-
-//   if (query?.searchTerm) {
-//     searchTerm = query?.searchTerm as string;
-//   }
-
-//   const searchQuery = Student.find({
-//     $or: studentSearchableFields.map((field) => ({
-//       [field]: { $regex: searchTerm, $options: 'i' },
-//     })),
-//   });
-
-//   // Filtering
-//   const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
-//   excludeFields.forEach((el) => delete queryObj[el]);
-
-//   const filterQuery = searchQuery
-//     .find(queryObj)
-//     .populate('admissionSemester')
-//     .populate({
-//       path: 'academicDepartment',
-//       populate: {
-//         path: 'academicFaculty',
-//       },
-//     });
-
-//   let sort = '-createdAt';
-
-//   if (query.sort) {
-//     sort = query.sort as string;
-//   }
-
-//   const sortQuery = filterQuery.sort(sort);
-
-//   let page = 1;
-//   let limit = 0;
-//   let skip = 0;
-
-//   if (query.limit) {
-//     limit = query.limit as number;
-//   }
-
-//   if (query.page) {
-//     page = Number(query.page);
-//     skip = (page - 1) * limit;
-//   }
-
-//   const paginateQuery = sortQuery.skip(skip);
-
-//   const limitQuery = paginateQuery.limit(limit);
-
-//   // field limiting
-//   let fields = '-__v';
-
-//   if (query.fields) {
-//     fields = (query.fields as string).split(',').join(' ');
-//   }
-
-//   const fieldQuery = await limitQuery.select(fields);
-
-//   return fieldQuery;
-// };
+import mongoose from 'mongoose';
+import QueryBuilder from '../../builder/QueryBuilder';
+import AppError from '../../errors/AppError';
+import { User } from '../User/user.model';
+import { studentSearchableFields } from './student.constant';
+import { TStudent } from './student.interface';
+import { Student } from './student.model';
 
 const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
   const studentQuery = new QueryBuilder(
     Student.find()
       .populate('user')
       .populate('admissionSemester')
-      .populate('academicDepartment'),
+      .populate('academicDepartment academicFaculty'),
     query,
   )
     .search(studentSearchableFields)
@@ -102,24 +30,30 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
   };
 };
 
-const getAStudentFromDB = async (id: string) => {
-  const result = await Student.findOne({ id })
+const getSingleStudentFromDB = async (id: string) => {
+  const result = await Student.findById(id)
     .populate('admissionSemester')
-    .populate({
-      path: 'academicDepartment',
-      populate: {
-        path: 'academicFaculty',
-      },
-    });
+    .populate('academicDepartment academicFaculty');
   return result;
 };
 
-const updateSudentIntoDB = (studentId: string, payload: Partial<IStudent>) => {
+const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
   const { name, guardian, localGuardian, ...remainingStudentData } = payload;
 
   const modifiedUpdatedData: Record<string, unknown> = {
     ...remainingStudentData,
   };
+
+  /*
+    guardain: {
+      fatherOccupation:"Teacher"
+    }
+
+    guardian.fatherOccupation = Teacher
+
+    name.firstName = 'Mezba'
+    name.lastName = 'Abedin'
+  */
 
   if (name && Object.keys(name).length) {
     for (const [key, value] of Object.entries(name)) {
@@ -139,28 +73,22 @@ const updateSudentIntoDB = (studentId: string, payload: Partial<IStudent>) => {
     }
   }
 
-  const result = Student.findOneAndUpdate(
-    { id: studentId },
-    modifiedUpdatedData,
-    {
-      new: true,
-      runValidators: true,
-    },
-  );
+  const result = await Student.findByIdAndUpdate(id, modifiedUpdatedData, {
+    new: true,
+    runValidators: true,
+  });
   return result;
 };
 
-const deleteAStudentFromDB = async (id: string) => {
+const deleteStudentFromDB = async (id: string) => {
   const session = await mongoose.startSession();
 
   try {
     session.startTransaction();
 
-    const deletedStudent = await Student.findOneAndUpdate(
-      { id },
-      {
-        isDeleted: true,
-      },
+    const deletedStudent = await Student.findByIdAndUpdate(
+      id,
+      { isDeleted: true },
       { new: true, session },
     );
 
@@ -168,11 +96,12 @@ const deleteAStudentFromDB = async (id: string) => {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete student');
     }
 
-    const deletedUser = await User.findOneAndUpdate(
-      { id },
-      {
-        isDeleted: true,
-      },
+    // get user _id from deletedStudent
+    const userId = deletedStudent.user;
+
+    const deletedUser = await User.findByIdAndUpdate(
+      userId,
+      { isDeleted: true },
       { new: true, session },
     );
 
@@ -184,18 +113,16 @@ const deleteAStudentFromDB = async (id: string) => {
     await session.endSession();
 
     return deletedStudent;
-  } catch (err: unknown) {
+  } catch (err) {
     await session.abortTransaction();
     await session.endSession();
-    if (err instanceof Error) {
-      throw new Error(err.message);
-    }
+    throw new Error('Failed to delete student');
   }
 };
 
 export const StudentServices = {
   getAllStudentsFromDB,
-  getAStudentFromDB,
-  deleteAStudentFromDB,
-  updateSudentIntoDB,
+  getSingleStudentFromDB,
+  updateStudentIntoDB,
+  deleteStudentFromDB,
 };

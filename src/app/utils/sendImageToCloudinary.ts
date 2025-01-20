@@ -1,37 +1,38 @@
-import { v2 as cloudinary } from 'cloudinary';
-import config from '../config';
-import multer from 'multer';
+import { UploadApiResponse, v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
+import multer from 'multer';
+import config from '../config';
 
-export const sendImageToCloudinary = async (
+cloudinary.config({
+  cloud_name: config.cloudinary_cloud_name,
+  api_key: config.cloudinary_api_key,
+  api_secret: config.cloudinary_api_secret,
+});
+
+export const sendImageToCloudinary = (
   imageName: string,
   path: string,
-) => {
-  // Configuration
-  cloudinary.config({
-    cloud_name: config.cloudinary_cloud_name,
-    api_key: config.cloudinary_api_key,
-    api_secret: config.cloudinary_api_secret,
+): Promise<Record<string, unknown>> => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload(
+      path,
+      { public_id: imageName.trim() },
+      function (error, result) {
+        if (error) {
+          reject(error);
+        }
+        resolve(result as UploadApiResponse);
+        // delete a file asynchronously
+        fs.unlink(path, (err) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log('File is deleted.');
+          }
+        });
+      },
+    );
   });
-
-  // Upload an image
-  const uploadResult = await cloudinary.uploader
-    .upload(path, {
-      public_id: imageName,
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-
-  fs.unlink(path, (err) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log('This file id Deleted!');
-    }
-  });
-
-  return uploadResult;
 };
 
 const storage = multer.diskStorage({

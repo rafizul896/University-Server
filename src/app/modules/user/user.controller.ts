@@ -1,15 +1,13 @@
-import { RequestHandler } from 'express';
-import { UserServices } from './user.service';
 import httpStatus from 'http-status';
+import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
-import catchAsync from '../../utils/catchAsynce';
-import { MulterUploadFile } from '../../interface/globalTypes';
+import { UserServices } from './user.service';
 
-const createStudent: RequestHandler = catchAsync(async (req, res) => {
-  const { student: studentData, password } = req.body;
+const createStudent = catchAsync(async (req, res) => {
+  const { password, student: studentData } = req.body;
 
   const result = await UserServices.createStudentIntoDB(
-    req?.file as MulterUploadFile,
+    req.file,
     password,
     studentData,
   );
@@ -25,7 +23,11 @@ const createStudent: RequestHandler = catchAsync(async (req, res) => {
 const createFaculty = catchAsync(async (req, res) => {
   const { password, faculty: facultyData } = req.body;
 
-  const result = await UserServices.createFacultyIntoDB(password, facultyData);
+  const result = await UserServices.createFacultyIntoDB(
+    req.file,
+    password,
+    facultyData,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -38,7 +40,11 @@ const createFaculty = catchAsync(async (req, res) => {
 const createAdmin = catchAsync(async (req, res) => {
   const { password, admin: adminData } = req.body;
 
-  const result = await UserServices.createAdminIntoDB(password, adminData);
+  const result = await UserServices.createAdminIntoDB(
+    req.file,
+    password,
+    adminData,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -49,7 +55,8 @@ const createAdmin = catchAsync(async (req, res) => {
 });
 
 const getMe = catchAsync(async (req, res) => {
-  const result = await UserServices.getMe(req.user);
+  const { userId, role } = req.user;
+  const result = await UserServices.getMe(userId, role);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -60,8 +67,9 @@ const getMe = catchAsync(async (req, res) => {
 });
 
 const changeStatus = catchAsync(async (req, res) => {
-  const { status } = req.body;
-  const result = await UserServices.changeStatus(req.params.id, status);
+  const id = req.params.id;
+
+  const result = await UserServices.changeStatus(id, req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -70,7 +78,6 @@ const changeStatus = catchAsync(async (req, res) => {
     data: result,
   });
 });
-
 export const UserControllers = {
   createStudent,
   createFaculty,

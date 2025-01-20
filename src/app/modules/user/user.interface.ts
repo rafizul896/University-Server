@@ -4,10 +4,10 @@ import { USER_ROLE } from './user.constant';
 
 export interface TUser {
   id: string;
-  password: string;
   email: string;
-  passwordChangedAt?: Date;
+  password: string;
   needsPasswordChange: boolean;
+  passwordChangedAt?: Date;
   role: 'superAdmin' | 'admin' | 'student' | 'faculty';
   status: 'in-progress' | 'blocked';
   isDeleted: boolean;
@@ -16,17 +16,15 @@ export interface TUser {
 export interface UserModel extends Model<TUser> {
   //instance methods for checking if the user exist
   isUserExistsByCustomId(id: string): Promise<TUser>;
-  // isUserDeleted(id: string): Promise<TUser>;
   //instance methods for checking if passwords are matched
   isPasswordMatched(
-    plainTexrPassword: string,
+    plainTextPassword: string,
     hashedPassword: string,
   ): Promise<boolean>;
-  //
-  isJWTIssuedBeforePasswordChange(
+  isJWTIssuedBeforePasswordChanged(
     passwordChangedTimestamp: Date,
     jwtIssuedTimestamp: number,
-  ): Promise<boolean>;
+  ): boolean;
 }
 
 export type TUserRole = keyof typeof USER_ROLE;

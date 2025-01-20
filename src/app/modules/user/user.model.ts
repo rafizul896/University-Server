@@ -1,42 +1,42 @@
-import { model, Schema } from 'mongoose';
-import { TUser, UserModel } from './user.interface';
+/* eslint-disable @typescript-eslint/no-this-alias */
 import bcrypt from 'bcrypt';
+import { Schema, model } from 'mongoose';
 import config from '../../config';
+import { UserStatus } from './user.constant';
+import { TUser, UserModel } from './user.interface';
 
 const userSchema = new Schema<TUser, UserModel>(
   {
     id: {
       type: String,
-      required: [true, 'User ID is required.'],
+      required: true,
+      unique: true,
     },
     email: {
       type: String,
-      required: [true, 'Email is required.'],
+      required: true,
       unique: true,
     },
     password: {
       type: String,
-      required: [true, 'Password is required.'],
+      required: true,
       select: 0,
-    },
-    passwordChangedAt: {
-      type: Date,
-      required: false,
     },
     needsPasswordChange: {
       type: Boolean,
       default: true,
     },
+    passwordChangedAt: {
+      type: Date,
+    },
     role: {
       type: String,
-      enum: ['superAdmin', 'admin', 'student', 'faculty'],
-      message: 'Role must be one of "admin", "student", or "faculty".',
+      enum: ['superAdmin', 'student', 'faculty', 'admin'],
     },
     status: {
       type: String,
-      enum: ['in-progress', 'blocked'],
+      enum: UserStatus,
       default: 'in-progress',
-      message: 'Status must be either "in-progress" or "blocked".',
     },
     isDeleted: {
       type: Boolean,
@@ -48,11 +48,9 @@ const userSchema = new Schema<TUser, UserModel>(
   },
 );
 
-// pre save middleware/hook : will work on create() or save()
 userSchema.pre('save', async function (next) {
-  // console.log(this, 'pre hook : we will save the data ');
   // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const user = this;
+  const user = this; // doc
   // hashing password and save into DB
   user.password = await bcrypt.hash(
     user.password,
@@ -61,9 +59,9 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// set(sand) '' after saving password
-userSchema.post('save', function (document, next) {
-  document.password = '';
+// set '' after saving password
+userSchema.post('save', function (doc, next) {
+  doc.password = '';
   next();
 });
 
@@ -72,19 +70,18 @@ userSchema.statics.isUserExistsByCustomId = async function (id: string) {
 };
 
 userSchema.statics.isPasswordMatched = async function (
-  plainTexrPassword,
+  plainTextPassword,
   hashedPassword,
 ) {
-  return await bcrypt.compare(plainTexrPassword, hashedPassword);
+  return await bcrypt.compare(plainTextPassword, hashedPassword);
 };
 
-userSchema.statics.isJWTIssuedBeforePasswordChange = async function (
+userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
   passwordChangedTimestamp: Date,
   jwtIssuedTimestamp: number,
 ) {
   const passwordChangedTime =
     new Date(passwordChangedTimestamp).getTime() / 1000;
-
   return passwordChangedTime > jwtIssuedTimestamp;
 };
 

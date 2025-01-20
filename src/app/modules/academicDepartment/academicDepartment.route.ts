@@ -1,9 +1,9 @@
 import express from 'express';
 import auth from '../../middlewares/auth';
 import validateRequest from '../../middlewares/validateRequest';
-import { USER_ROLE } from '../user/user.constant';
-import { AcademicDepartmentValidations } from './academicDepartment.validation';
-import { AcademicDepartmentControllers } from './academicDepartment.controllar';
+import { USER_ROLE } from '../User/user.constant';
+import { AcademicDepartmentControllers } from './academicDepartment.controller';
+import { AcademicDepartmentValidation } from './academicDepartment.validation';
 
 const router = express.Router();
 
@@ -11,7 +11,7 @@ router.post(
   '/create-academic-department',
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   validateRequest(
-    AcademicDepartmentValidations.createAcademicDepartmentValidationSchema,
+    AcademicDepartmentValidation.createAcademicDepartmentValidationSchema,
   ),
   AcademicDepartmentControllers.createAcademicDepartmemt,
 );
@@ -31,7 +31,7 @@ router.patch(
   '/:departmentId',
   auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   validateRequest(
-    AcademicDepartmentValidations.updateAcademicDepartmentValidationSchema,
+    AcademicDepartmentValidation.updateAcademicDepartmentValidationSchema,
   ),
   AcademicDepartmentControllers.updateAcademicDeartment,
 );

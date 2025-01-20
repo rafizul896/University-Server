@@ -1,3 +1,5 @@
+import QueryBuilder from '../../builder/QueryBuilder';
+import { AcademicFacultySearchableFields } from './academicFaculty.constant';
 import { TAcademicFaculty } from './academicFaculty.interface';
 import { AcademicFaculty } from './academicFaculty.model';
 
@@ -6,9 +8,23 @@ const createAcademicFacultyIntoDB = async (payload: TAcademicFaculty) => {
   return result;
 };
 
-const getAcademicFacultiesFromDB = async () => {
-  const result = await AcademicFaculty.find();
-  return result;
+const getAllAcademicFacultiesFromDB = async (
+  query: Record<string, unknown>,
+) => {
+  const academicFacultyQuery = new QueryBuilder(AcademicFaculty.find(), query)
+    .search(AcademicFacultySearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const result = await academicFacultyQuery.modelQuery;
+  const meta = await academicFacultyQuery.countTotal();
+
+  return {
+    meta,
+    result,
+  };
 };
 
 const getSingleAcademicFacultyFromDB = async (id: string) => {
@@ -16,11 +32,11 @@ const getSingleAcademicFacultyFromDB = async (id: string) => {
   return result;
 };
 
-const updateAcademicFacutyIntoDB = async (
+const updateAcademicFacultyIntoDB = async (
   id: string,
-  payload: TAcademicFaculty,
+  payload: Partial<TAcademicFaculty>,
 ) => {
-  const result = await AcademicFaculty.findByIdAndUpdate({ _id: id }, payload, {
+  const result = await AcademicFaculty.findOneAndUpdate({ _id: id }, payload, {
     new: true,
   });
   return result;
@@ -28,7 +44,7 @@ const updateAcademicFacutyIntoDB = async (
 
 export const AcademicFacultyServices = {
   createAcademicFacultyIntoDB,
-  getAcademicFacultiesFromDB,
+  getAllAcademicFacultiesFromDB,
   getSingleAcademicFacultyFromDB,
-  updateAcademicFacutyIntoDB,
+  updateAcademicFacultyIntoDB,
 };

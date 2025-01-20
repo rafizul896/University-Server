@@ -1,16 +1,17 @@
 import { Router } from 'express';
-import { StudentRouters } from '../modules/student/student.route';
-import { UserRoutes } from '../modules/user/user.route';
-import { AcademicSemesterRoutes } from '../modules/academicSemester/academicSemester.route';
-import { AcademicFacultyRoutes } from '../modules/academicFaculty/academicFaculty.route';
-import { AcademicDepartmentRoutes } from '../modules/academicDepartment/academicDepartment.route';
-import { AdminRoutes } from '../modules/admin/admin.route';
-import { FacultyRoutes } from '../modules/faculty/faculty.route';
-import { CourseRoutes } from '../modules/course/course.route';
-import { SemesterRegistrationRoutes } from '../modules/semesterRegistration/semesterRegistration.route';
-import { offeredCourseRoutes } from '../modules/offeredCourse/offeredCourse.route';
-import { AuthRoutes } from '../modules/auth/auth.route';
-import { EnrolledCourseRoutes } from '../modules/enrolledCourse/enrolledCourse.route';
+import { AdminRoutes } from '../modules/Admin/admin.route';
+import { AuthRoutes } from '../modules/Auth/auth.route';
+import { CourseRoutes } from '../modules/Course/course.route';
+
+import { AcademicDepartmentRoutes } from '../modules/AcademicDepartment/academicDepartment.route';
+import { AcademicFacultyRoutes } from '../modules/AcademicFaculty/academicFaculty.route';
+import { AcademicSemesterRoutes } from '../modules/AcademicSemester/academicSemester.route';
+import { EnrolledCourseRoutes } from '../modules/EnrolledCourse/enrolledCourse.route';
+import { FacultyRoutes } from '../modules/Faculty/faculty.route';
+import { offeredCourseRoutes } from '../modules/OfferedCourse/OfferedCourse.route';
+import { semesterRegistrationRoutes } from '../modules/SemesterRegistration/semesterRegistration.route';
+import { StudentRoutes } from '../modules/Student/student.route';
+import { UserRoutes } from '../modules/User/user.route';
 
 const router = Router();
 
@@ -21,7 +22,7 @@ const moduleRoutes = [
   },
   {
     path: '/students',
-    route: StudentRouters,
+    route: StudentRoutes,
   },
   {
     path: '/faculties',
@@ -49,7 +50,7 @@ const moduleRoutes = [
   },
   {
     path: '/semester-registrations',
-    route: SemesterRegistrationRoutes,
+    route: semesterRegistrationRoutes,
   },
   {
     path: '/offered-courses',
@@ -66,8 +67,5 @@ const moduleRoutes = [
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
-
-router.use('/users', UserRoutes);
-router.use('/students', StudentRouters);
 
 export default router;

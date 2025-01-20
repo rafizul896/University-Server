@@ -1,5 +1,5 @@
 export const calculateGradeAndPoints = (totalMarks: number) => {
-  let result: { grade: string; gradePoints: number } = {
+  let result = {
     grade: 'NA',
     gradePoints: 0,
   };
@@ -11,7 +11,6 @@ export const calculateGradeAndPoints = (totalMarks: number) => {
    * 60-79 B
    * 80-100 A
    */
-
   if (totalMarks >= 0 && totalMarks <= 19) {
     result = {
       grade: 'F',

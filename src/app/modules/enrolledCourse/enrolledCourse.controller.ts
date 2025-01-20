@@ -1,7 +1,7 @@
 import httpStatus from 'http-status';
+import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { EnrolledCourseServices } from './enrolledCourse.service';
-import catchAsync from '../../utils/catchAsynce';
 
 const createEnrolledCourse = catchAsync(async (req, res) => {
   const userId = req.user.userId;
@@ -30,8 +30,8 @@ const getMyEnrolledCourses = catchAsync(async (req, res) => {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Enrolled courses are retrivied succesfully',
-    // meta: result.meta,
-    data: result,
+    meta: result.meta,
+    data: result.result,
   });
 });
 
@@ -52,6 +52,6 @@ const updateEnrolledCourseMarks = catchAsync(async (req, res) => {
 
 export const EnrolledCourseControllers = {
   createEnrolledCourse,
-  updateEnrolledCourseMarks,
   getMyEnrolledCourses,
+  updateEnrolledCourseMarks,
 };

@@ -1,7 +1,7 @@
 import httpStatus from 'http-status';
+import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { AdminServices } from './admin.service';
-import catchAsync from '../../utils/catchAsynce';
 
 const getSingleAdmin = catchAsync(async (req, res) => {
   const { id } = req.params;
@@ -22,7 +22,8 @@ const getAllAdmins = catchAsync(async (req, res) => {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Admins are retrieved succesfully',
-    data: result,
+    meta: result.meta,
+    data: result.result,
   });
 });
 

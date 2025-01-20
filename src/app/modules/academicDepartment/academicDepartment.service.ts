@@ -1,8 +1,7 @@
-import QueryBuilder from '../../builder/QueryBuider';
+import QueryBuilder from '../../builder/QueryBuilder';
 import { TAcademicDepartment } from './academicDepartment.interface';
 import { AcademicDepartment } from './academicDepartment.model';
-
-const AcademicDepartmentSearchableFields = ['name'];
+import { AcademicDepartmentSearchableFields } from './academicDepartmets.constant';
 
 const createAcademicDepartmentIntoDB = async (payload: TAcademicDepartment) => {
   const result = await AcademicDepartment.create(payload);
